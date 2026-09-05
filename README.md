@@ -1,11 +1,13 @@
 # Review-Driven Ad Generation & Persuasion Strategy Evaluation
 
 ## Overview
-This project explores whether customer reviews can be mined to automatically generate more persuasive ad copy. Using 134,000+ Amazon musical instrument reviews, it identifies the product features and pain points customers care about most, then tests whether ads built around those signals are judged more persuasive than generic alternatives — with an LLM acting as evaluator.
+This project explores whether customer reviews can be mined to automatically generate more persuasive ad copy. 
+
+Using 134,000+ Amazon musical instrument reviews, it identifies the product features and pain points customers care about most, then tests whether ads built around those signals are judged more persuasive than generic alternatives, with an LLM acting as evaluator.
 
 ## Approach/Methods
 - **Topic modeling**: LDA (Gensim) on guitar reviews to extract 16 instrument-feature topics; BERTopic tested as an alternative but discarded due to high outlier rates
-- **Sentiment analysis**: benchmarked 8 modeling approaches per review — TF-IDF + logistic regression, sentence embeddings + logistic regression, off-the-shelf pretrained BERT models, zero-shot NLI classification, fine-tuned RoBERTa, and LLM few-shot classification (document-level and topic-aware)
+- **Sentiment analysis**: benchmarked 8 modeling approaches per review, i.e. TF-IDF + logistic regression, sentence embeddings + logistic regression, off-the-shelf pretrained BERT models, zero-shot NLI classification, fine-tuned RoBERTa, and LLM few-shot classification (document-level and topic-aware)
 - **Aspect-based sentiment analysis (ABSA)**: zero-shot classification applied per topic across all reviews to surface positive/negative sentiment patterns by product feature
 - **Ad generation**: LLM-generated ad copy per topic, testing two strategies — amplifying positive sentiment vs. directly addressing common pain points
 - **Evaluation**: LLM-as-judge scoring of generated ads, both pointwise and pairwise
