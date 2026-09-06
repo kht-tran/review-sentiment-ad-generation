@@ -1,0 +1,46 @@
+LDA Hyperparameter Tuning — Keyboards & MIDI
+======================================================================
+
+Copy the BEST row values into assign_topics_keyboards.py:
+  NUM_TOPICS = <n>  |  ALPHA = '<alpha>'  |  ETA = '<eta>'  |  PASSES = <p>
+
+  Topics |        Alpha |          Eta |  Passes |  Coherence
+-------------------------------------------------------------
+      10 |    symmetric |    symmetric |      10 |     0.5671
+      10 |   asymmetric |         auto |      10 |     0.5750
+      10 |         0.01 |         0.01 |      10 |     0.5707
+      10 |          0.1 |          0.1 |      10 |     0.5699
+      10 |   asymmetric |         auto |      20 |     0.5727
+      25 |    symmetric |    symmetric |      10 |     0.5584
+      25 |   asymmetric |         auto |      10 |     0.5758
+      25 |         0.01 |         0.01 |      10 |     0.5533
+
+Best: topics=25 | alpha=asymmetric | eta=auto | passes=10 | coherence=0.5758
+
+
+── Topics for best model (use these to choose FINAL_TOPICS) ──────────
+Topic 00: 0.122*"quality" + 0.099*"sound" + 0.051*"beginner" + 0.044*"recommend" + 0.033*"perfect" + 0.031*"excellent" + 0.025*"expected" + 0.022*"highly" + 0.021*"awesome" + 0.021*"amazing" + 0.019*"value" + 0.019*"happy" + 0.017*"everything" + 0.017*"definitely" + 0.014*"worth"
+Topic 01: 0.049*"size" + 0.039*"small" + 0.022*"perfect" + 0.019*"room" + 0.015*"look" + 0.012*"space" + 0.011*"smaller" + 0.010*"large" + 0.009*"take" + 0.007*"hand" + 0.007*"enough" + 0.007*"right" + 0.006*"keep" + 0.006*"living" + 0.006*"looking"
+Topic 02: 0.170*"love" + 0.163*"daughter" + 0.074*"year" + 0.039*"play" + 0.022*"granddaughter" + 0.021*"birthday" + 0.021*"gift" + 0.021*"perfect" + 0.020*"wife" + 0.019*"absolutely" + 0.019*"like" + 0.018*"playing" + 0.016*"christmas" + 0.016*"purchased" + 0.014*"grandson"
+Topic 03: 0.042*"super" + 0.038*"cute" + 0.019*"keep" + 0.016*"light" + 0.015*"carry" + 0.015*"pretty" + 0.013*"around" + 0.013*"travel" + 0.011*"soft" + 0.011*"perfect" + 0.010*"durable" + 0.010*"thing" + 0.009*"baby" + 0.009*"take" + 0.008*"work"
+Topic 04: 0.226*"easy" + 0.081*"learn" + 0.074*"beautiful" + 0.072*"sound" + 0.069*"play" + 0.019*"song" + 0.019*"assemble" + 0.012*"instruction" + 0.012*"super" + 0.011*"videoid" + 0.011*"wonderful" + 0.010*"look" + 0.010*"amazing" + 0.009*"book" + 0.009*"instrument"
+Topic 05: 0.062*"play" + 0.031*"song" + 0.031*"learning" + 0.028*"learn" + 0.026*"want" + 0.022*"music" + 0.019*"beginner" + 0.018*"key" + 0.016*"child" + 0.016*"something" + 0.015*"playing" + 0.015*"wanted" + 0.010*"know" + 0.009*"help" + 0.008*"someone"
+Topic 06: 0.110*"stand" + 0.024*"together" + 0.021*"screw" + 0.019*"bench" + 0.015*"music" + 0.013*"sturdy" + 0.013*"instruction" + 0.011*"assembly" + 0.011*"headphone" + 0.010*"bundle" + 0.010*"part" + 0.009*"piece" + 0.009*"come" + 0.008*"sheet" + 0.008*"seat"
+Topic 07: 0.058*"look" + 0.053*"color" + 0.042*"picture" + 0.032*"black" + 0.026*"white" + 0.024*"show" + 0.019*"description" + 0.016*"light" + 0.015*"screen" + 0.012*"received" + 0.012*"blue" + 0.011*"different" + 0.011*"match" + 0.011*"pictured" + 0.010*"bright"
+Topic 08: 0.107*"work" + 0.074*"power" + 0.053*"battery" + 0.046*"adapter" + 0.044*"headphone" + 0.031*"cord" + 0.024*"plug" + 0.022*"package" + 0.021*"included" + 0.019*"supply" + 0.016*"microphone" + 0.016*"fine" + 0.012*"stand" + 0.011*"need" + 0.011*"missing"
+Topic 09: 0.064*"sound" + 0.035*"speaker" + 0.035*"volume" + 0.028*"headphone" + 0.017*"feature" + 0.016*"loud" + 0.015*"built" + 0.015*"setting" + 0.014*"function" + 0.013*"play" + 0.013*"jack" + 0.010*"turn" + 0.010*"button" + 0.010*"record" + 0.010*"different"
+Topic 10: 0.139*"instrument" + 0.046*"play" + 0.043*"sound" + 0.036*"music" + 0.034*"musical" + 0.018*"playing" + 0.018*"video" + 0.016*"cool" + 0.016*"enjoy" + 0.014*"beautiful" + 0.013*"youtube" + 0.008*"tune" + 0.008*"thing" + 0.007*"never" + 0.007*"song"
+Topic 11: 0.075*"pedal" + 0.040*"sustain" + 0.024*"model" + 0.012*"yamaha" + 0.010*"feature" + 0.010*"found" + 0.009*"foot" + 0.008*"store" + 0.008*"many" + 0.008*"available" + 0.006*"alesis" + 0.006*"option" + 0.006*"read" + 0.005*"offer" + 0.005*"deal"
+Topic 12: 0.025*"return" + 0.022*"key" + 0.016*"work" + 0.015*"broken" + 0.014*"customer" + 0.014*"service" + 0.014*"issue" + 0.013*"company" + 0.012*"disappointed" + 0.012*"first" + 0.012*"problem" + 0.011*"replacement" + 0.011*"returned" + 0.011*"received" + 0.011*"sent"
+Topic 13: 0.059*"case" + 0.033*"perfectly" + 0.027*"fit" + 0.025*"work" + 0.024*"melodica" + 0.021*"plastic" + 0.021*"hold" + 0.018*"needed" + 0.017*"handle" + 0.014*"exactly" + 0.011*"heavy" + 0.011*"tube" + 0.010*"material" + 0.010*"cover" + 0.010*"sturdy"
+Topic 14: 0.041*"sound" + 0.035*"yamaha" + 0.020*"casio" + 0.019*"better" + 0.018*"digital" + 0.012*"best" + 0.012*"year" + 0.011*"quality" + 0.010*"grand" + 0.009*"feel" + 0.009*"action" + 0.008*"thing" + 0.008*"model" + 0.008*"acoustic" + 0.006*"many"
+Topic 15: 0.148*"gift" + 0.078*"loved" + 0.075*"christmas" + 0.026*"year" + 0.024*"birthday" + 0.022*"friend" + 0.022*"present" + 0.021*"grandson" + 0.018*"gave" + 0.015*"granddaughter" + 0.015*"purchased" + 0.014*"family" + 0.013*"playing" + 0.012*"excited" + 0.012*"liked"
+Topic 16: 0.048*"note" + 0.044*"key" + 0.027*"play" + 0.020*"sound" + 0.016*"hard" + 0.014*"button" + 0.013*"playing" + 0.012*"accordion" + 0.010*"press" + 0.009*"finger" + 0.009*"hand" + 0.008*"chord" + 0.008*"problem" + 0.008*"right" + 0.008*"octave"
+Topic 17: 0.063*"month" + 0.048*"working" + 0.040*"week" + 0.035*"year" + 0.033*"last" + 0.030*"worked" + 0.026*"stopped" + 0.022*"broke" + 0.021*"long" + 0.020*"couple" + 0.019*"within" + 0.018*"day" + 0.018*"first" + 0.016*"hour" + 0.013*"minute"
+Topic 18: 0.099*"kid" + 0.079*"lesson" + 0.051*"practice" + 0.033*"started" + 0.028*"taking" + 0.027*"year" + 0.027*"playing" + 0.024*"music" + 0.022*"perfect" + 0.022*"home" + 0.020*"enjoying" + 0.020*"teacher" + 0.019*"start" + 0.015*"learning" + 0.015*"school"
+Topic 19: 0.023*"sound" + 0.014*"controller" + 0.011*"control" + 0.009*"performance" + 0.008*"live" + 0.008*"board" + 0.008*"sample" + 0.008*"need" + 0.007*"track" + 0.007*"roland" + 0.007*"studio" + 0.007*"instrument" + 0.007*"feature" + 0.007*"audio" + 0.006*"wheel"
+Topic 20: 0.027*"sound" + 0.019*"thing" + 0.013*"machine" + 0.013*"drum" + 0.013*"analog" + 0.012*"knob" + 0.012*"effect" + 0.012*"korg" + 0.009*"unit" + 0.009*"beat" + 0.009*"sequencer" + 0.008*"patch" + 0.008*"filter" + 0.007*"moog" + 0.007*"want"
+Topic 21: 0.022*"phone" + 0.021*"cable" + 0.021*"work" + 0.018*"device" + 0.017*"software" + 0.015*"computer" + 0.014*"ipad" + 0.012*"manual" + 0.012*"connect" + 0.010*"port" + 0.009*"support" + 0.009*"connection" + 0.007*"head" + 0.006*"free" + 0.006*"video"
+Topic 22: 0.112*"key" + 0.071*"feel" + 0.067*"sound" + 0.041*"real" + 0.040*"weighted" + 0.020*"touch" + 0.017*"full" + 0.014*"weight" + 0.013*"playing" + 0.013*"size" + 0.010*"light" + 0.009*"beginner" + 0.009*"digital" + 0.009*"play" + 0.009*"sensitive"
+Topic 23: 0.082*"kalimba" + 0.032*"tune" + 0.025*"sound" + 0.024*"tuning" + 0.021*"tine" + 0.018*"wood" + 0.018*"come" + 0.017*"instrument" + 0.017*"thumb" + 0.016*"case" + 0.015*"tuned" + 0.015*"beautiful" + 0.015*"note" + 0.013*"sticker" + 0.012*"hammer"
+Topic 24: 0.038*"tone" + 0.030*"instrument" + 0.028*"voice" + 0.022*"sound" + 0.018*"organ" + 0.016*"many" + 0.015*"music" + 0.015*"guitar" + 0.012*"string" + 0.011*"different" + 0.011*"professional" + 0.010*"rhythm" + 0.010*"style" + 0.010*"play" + 0.010*"player"

@@ -1,0 +1,30 @@
+Ad Evaluation -- Full Results Summary
+=======================================================
+Generator : gpt-5.4 (OpenAI)
+Judge     : deepseek-v4-flash (DeepSeek)
+
+--- PART A: POINTWISE (supplementary) ---
+          emotional_resonance  argument_strength  specificity  purchase_motivation  composite
+strategy                                                                                     
+A                        2.75               2.38         2.25                 2.88       2.56
+B                        3.12               3.25         3.00                 3.12       3.12
+
+  emotional_resonance: A=2.75  B=3.12  -> B
+  argument_strength: A=2.38  B=3.25  -> B
+  specificity: A=2.25  B=3.0  -> B
+  purchase_motivation: A=2.88  B=3.12  -> B
+
+--- PART B: PAIRWISE (primary) ---
+  Overall: A wins 0/8  B wins 5/8  Ties 3/8
+
+  Sound quality / speaker              A=0  B=1  -> B
+  Brand quality / acoustic feel        A=0  B=0  -> tie
+  Durability / stopped working         A=0  B=1  -> B
+  Power supply & accessories           A=0  B=1  -> B
+  Appearance / color / display         A=0  B=1  -> B
+  Returns / broken keys                A=0  B=1  -> B
+
+--- PART C: CROSS-METHOD VALIDATION ---
+  Pointwise winner : Strategy B
+  Pairwise winner  : Strategy B
+  Agreement        : YES -- high confidence
