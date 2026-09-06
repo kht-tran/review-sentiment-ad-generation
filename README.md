@@ -5,6 +5,8 @@ This project explores whether customer reviews can be mined to automatically gen
 
 Using 134,000+ Amazon musical instrument reviews, it identifies the product features and pain points customers care about most, then tests whether ads built around those signals are judged more persuasive than generic alternatives, with an LLM acting as evaluator.
 
+*[Completed as part of a two-person team project. Both team members contributed collaboratively across all stages of the analysis.]*
+
 ## Approach/Methods
 - **Topic modeling**: LDA (Gensim) on guitar reviews to extract 16 instrument-feature topics; BERTopic tested as an alternative but discarded due to high outlier rates
 - **Sentiment analysis**: benchmarked 8 modeling approaches per review, i.e. TF-IDF + logistic regression, sentence embeddings + logistic regression, off-the-shelf pretrained BERT models, zero-shot NLI classification, fine-tuned RoBERTa, and LLM few-shot classification (document-level and topic-aware)
