@@ -27,14 +27,14 @@ Built on the Amazon Reviews 2023 dataset (Musical Instruments subset), a public 
 - OpenAI/DeepSeek APIs (ad generation & LLM-as-judge)
 
 ## Repository Contents
-- `0_convert_files/` — file format conversion utilities
-- `1_join_datasets/` — merges reviews with product metadata
-- `2_eda/` — exploratory data analysis
-- `3_topic_modelling/` — LDA training on guitar reviews (BERTopic tested as an alternative, not used in final pipeline)
-- `3b_assign_topics/` — topic assignment output at different development stages
-- `4_sentiment_analysis/` — 8 benchmarked sentiment modeling approaches, plus model comparison and per-topic sentiment breakdown notebooks
-- `5_ad_generation/` — ad copy generation and LLM-as-judge evaluation notebooks
-- `extension_drums/`, `extension_keyboards/` — robustness check: full pipeline (topic modeling, sentiment, ad generation) re-run on drums and keyboards reviews
-- `environment.yml` — conda environment for reproducing the pipeline
+- `0_convert_files/`: file format conversion utilities
+- `1_join_datasets/`: merges reviews with product metadata
+- `2_eda/`: exploratory data analysis
+- `3_topic_modelling/`: LDA training on guitar reviews (BERTopic tested as an alternative, not used in final pipeline)
+- `3b_assign_topics/`: topic assignment output at different development stages
+- `4_sentiment_analysis/`: 8 benchmarked sentiment modeling approaches, plus model comparison and per-topic sentiment breakdown notebooks
+- `5_ad_generation/`: ad copy generation and LLM-as-judge evaluation notebooks
+- `extension_drums/`, `extension_keyboards/`: robustness check: full pipeline (topic modeling, sentiment, ad generation) re-run on drums and keyboards reviews
+- `environment.yml`: conda environment for reproducing the pipeline
   
 Raw data files (review/metadata parquet and JSONL files) are not included.
