@@ -1,0 +1,847 @@
+% ============================================================
+%  ACL 2023 format
+%  Style files needed in the SAME folder as this .tex file:
+%    acl.sty        (from acl2023 package)
+%    acl_natbib.bst (from acl2023 package — already in your acl2023/ folder)
+%
+%  Copy acl.sty into this folder, then compile with:
+%    pdflatex report.tex
+%    pdflatex report.tex
+%  (References are inline — no bibtex step needed)
+% ============================================================
+
+\documentclass[11pt]{article}
+\usepackage[hyperref]{acl}
+\setcitestyle{numbers}   % use [1][2]... style; avoids natbib author-year error
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{xurl}
+
+\title{Aspect-Aware Sentiment Mining and LLM-Driven Ad Generation\\
+       on Amazon Musical Instrument Reviews}
+
+\author{
+  Jiayi Song \quad  Kieu Huyen Tran Tran\\[2pt]
+  Bocconi University, Milan \\
+}
+
+\begin{document}
+\maketitle
+
+% ------------------------------------------------------------------
+\begin{abstract}
+We present a two-stage NLP pipeline applied to Amazon Musical
+Instrument reviews.
+\textit{Stage~1} combines LDA topic modeling with six sentiment
+analysis approaches (across eight models) to extract feature-level
+signals: which product attributes customers praise or criticize.
+\textit{Stage~2} uses these signals to generate targeted
+advertisements with a large language model, contrasting a
+\textit{strength-amplifying} strategy (highlighting praised features)
+against a \textit{problem-solving} strategy (addressing criticisms);
+an independent LLM judge evaluates the ads via pairwise and pointwise
+protocols.
+On the guitar corpus (134{,}068 reviews), fine-tuned RoBERTa
+\cite{liu2019roberta} achieves the highest document-level Macro~F1
+(0.944), while BART zero-shot NLI \cite{lewis2020bart} leads among
+training-free methods (0.911).
+Topic-level analysis identifies shipping damage as the most
+criticized feature (82.6\% negative) and acoustic tone the most
+praised (96.2\% positive).
+In ad evaluation, the problem-solving strategy wins 6/9 pairwise
+matchups and leads on all four pointwise dimensions, consistent
+with Prospect Theory \cite{kahneman1979prospect}.
+We replicate the full pipeline on \textit{drums} and
+\textit{keyboards}: Strategy~B again wins both subcategories
+(5/8 pairwise wins, leading on every pointwise dimension), confirming
+that the problem-solving advantage generalizes beyond guitars.
+\end{abstract}
+
+% ------------------------------------------------------------------
+\section{Introduction}
+
+Customer reviews on Amazon contain detailed, product-specific
+opinions, but most marketing pipelines use them only as star-rating
+averages.
+We ask two linked questions: (1)~\textit{Which features of musical
+instruments do customers consistently praise or criticize?} and
+(2)~\textit{Can feature-level sentiment drive more persuasive
+advertising copy?}
+
+Our pipeline operates on the Amazon Reviews 2023 Musical Instruments
+dataset \cite{hou2024bridging}.
+We first apply Latent Dirichlet Allocation (LDA) \cite{blei2003lda}
+to discover product feature topics, then benchmark eight sentiment
+classifiers to validate reliable sentiment detection in this domain.
+We then perform topic-level sentiment analysis to rank features by
+customer satisfaction.
+In Stage~2 we generate pairs of ads per product, one amplifying
+praised features (\textit{Strategy~A}) and one addressing criticisms
+(\textit{Strategy~B}), and evaluate them with an independent LLM
+judge.
+The guitar subcategory serves as our primary corpus; we then
+replicate the entire pipeline on drums and keyboards
+(Section~\ref{sec:rep}) to test cross-instrument generalisation.
+
+% ------------------------------------------------------------------
+\section{Dataset and EDA}
+\label{sec:data}
+
+\paragraph{Dataset.}
+We use Amazon Reviews 2023 Musical Instruments
+\cite{hou2024bridging}, joining reviews with product metadata on
+\texttt{parent\_asin} (100\% join rate).
+The full dataset contains 3{,}017{,}439 reviews across 14
+subcategories with $\geq$5{,}000 reviews.
+We select the \textbf{Guitars} subcategory (134{,}068 reviews)
+based on a multi-criteria scorecard balancing corpus size,
+review length, and sentiment balance, where guitars score second
+overall (5.74/10) with a favorable size and topic diversity.
+
+\paragraph{EDA key findings.}
+The rating distribution is heavily skewed (about 6.1$\times$ more
+positive than negative reviews), so we use Macro~F1 as the primary
+metric since accuracy alone is misleading.
+Most reviews (92.1\%) are verified, and verified vs.\ non-verified
+samples show no systematic difference large enough to warrant
+removal.
+Reviews are short (median 23 words), and roughly a quarter contain
+fewer than 10 words, motivating our preprocessing filter.
+
+\paragraph{Binary labels and split.}
+Ratings 4-5 map to \textit{positive}, ratings 1-2 to
+\textit{negative}, and rating~3 is dropped as ambiguous.
+We use a stratified 80/20 split (test set: 24{,}815 reviews).
+Full EDA tables and the rating-3-free split footnote are in
+Appendix~\ref{app:repro}.
+
+% ------------------------------------------------------------------
+\section{Topic Modeling}
+\label{sec:topics}
+
+We explored BERTopic \cite{grootendorst2022bertopic}
+(all-mpnet-base-v2 + UMAP + HDBSCAN) but obtained $\approx$50\%
+outlier reviews regardless of parameter settings, consistent with
+known limitations of density clustering on short, mixed-register
+text.
+We therefore proceeded with LDA.
+
+\paragraph{Choice of K.}
+We grid-searched the number of topics over $K \in \{5, 10, \ldots, 25\}$
+using C$_v$ coherence \cite{roder2015coherence}.
+Coherence increases monotonically with $K$ in our range and peaks
+at $K{=}25$ (coherence~=~0.541), which we adopt as our base model.
+The absolute coherence ceiling near 0.54 is a known property of short
+Amazon review text rather than a modeling failure.
+Other LDA hyperparameters ($\alpha$, $\eta$, passes) are tuned at the
+same time but reported in Appendix~\ref{app:repro}.
+
+\paragraph{Topic labeling and assignment.}
+From the 25 raw topics we manually retain the 13 interpretable ones
+and merge two accessory-related topics, giving \textbf{14 final
+topics} (e.g., \textit{Tuning stability}, \textit{String quality},
+\textit{Shipping damage}, \textit{Beginner learning}).
+Each review is then assigned to its highest-probability topic within
+the 14 above a small probability threshold, which yields
+\textbf{100{,}248 assigned reviews (74.8\%)}.
+
+% ------------------------------------------------------------------
+\section{Sentiment Analysis}
+\label{sec:sentiment}
+
+\subsection{Document-Level Classification}
+\label{sec:doclevel}
+
+We benchmark six approaches (eight models) on the same test set,
+using \textbf{Macro~F1} as the primary metric.
+
+\paragraph{Classical baselines.}
+TF-IDF + Logistic Regression (LR) with bigrams achieves Macro~F1~=~0.893 (tuning details in Appendix~\ref{app:repro}).
+Sentence Transformer embeddings
+(\href{https://huggingface.co/sentence-transformers/all-mpnet-base-v2}{\texttt{all-mpnet-base-v2}})
+\cite{reimers2019sbert} with LR improve marginally to 0.898.
+
+\paragraph{Pre-trained models (zero-shot).} \href{https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment}{\texttt{nlptown-BERT}}, binarized by summing $P(\text{4}{\star})+P(\text{5}{\star})$,
+achieves 0.901.
+\href{https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest}{\texttt{CardiffNLP-RoBERTa}}
+underperforms (0.875), likely due to Twitter domain mismatch.
+\href{https://huggingface.co/facebook/bart-large-mnli}{\texttt{BART-MNLI}}
+\cite{lewis2020bart} with NLI hypothesis \textit{``The sentiment of
+this review is \{positive / negative\}''} achieves \textbf{0.911},
+best among training-free methods.
+\href{https://huggingface.co/cross-encoder/nli-deberta-v3-large}{\texttt{DeBERTa-NLI}}
+reaches 0.901.
+
+\paragraph{Fine-tuned and few-shot.}
+Fine-tuned \href{https://huggingface.co/FacebookAI/roberta-base}{\texttt{roberta-base}}
+\cite{liu2019roberta} achieves \textbf{Macro~F1~=~0.944}, the
+highest overall.
+\href{https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3}{\texttt{Mistral-7B-Instruct-v0.3}}
+\cite{jiang2023mistral} with 5-shot in-context learning
+\cite{brown2020fewshot} reaches 0.924, only 0.020 below fine-tuned
+RoBERTa despite using no labeled training data.
+Training and prompt details are in Appendix~\ref{app:repro}.
+
+Full results are in Table~\ref{tab:sentiment}.
+Methods cluster into three tiers:
+(i) \textit{top} (Macro~F1 $\geq$0.92): fine-tuned RoBERTa and
+Mistral-7B;
+(ii) \textit{upper} (0.90-0.92): BART, DeBERTa, nlptown, ST+LR;
+(iii) \textit{lower} ($<$0.90): TF-IDF+LR and CardiffNLP.
+Across topics, \textit{Tuning stability} is consistently easiest
+and \textit{Pickups} hardest for all methods.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Document-level sentiment on the guitar test set.
+Macro~F1 is the primary metric; Neg~F1 reflects minority-class
+performance.}
+\label{tab:sentiment}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \textbf{Acc} & \textbf{Mac F1} & \textbf{Neg F1} \\
+\midrule
+TF-IDF + LR            & 0.948 & 0.893 & 0.816 \\
+SentTransf.\ + LR      & 0.950 & 0.898 & 0.825 \\
+nlptown BERT           & 0.944 & 0.901 & 0.835 \\
+CardiffNLP RoBERTa     & 0.933 & 0.875 & 0.790 \\
+BART zero-shot         & 0.952 & 0.911 & 0.851 \\
+DeBERTa zero-shot      & 0.950 & 0.901 & 0.831 \\
+Fine-tuned RoBERTa     & \textbf{0.972} & \textbf{0.944} & \textbf{0.905} \\
+Mistral-7B 5-shot      & 0.959 & 0.924 & 0.874 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Error Analysis}
+\label{sec:error}
+
+We inspect the 701 errors (2.8\%) made by fine-tuned RoBERTa on the
+guitar test set to understand systematic failure modes.
+False positives (358) and false negatives (343) are nearly balanced,
+indicating no directional bias.
+Notably, 84\% of errors are \textit{high-confidence} mistakes
+(predicted probability $>$0.90 or $<$0.10), showing that failures
+are not concentrated at the decision boundary but reflect
+systematic, recurring patterns in the data.
+
+\paragraph{Per-topic error rates.}
+Error rates vary substantially by topic, with shipping- and
+service-related topics hardest and acoustic-tone topics easiest
+(full breakdown in Appendix~\ref{app:repro}).
+A useful diagnostic is \textit{Pickups}: its error rate is low
+(1.5\%) but its Macro~F1 is the lowest of any topic (0.855),
+because only 38 of 1{,}477 Pickups test reviews are negative, so a
+handful of minority-class mistakes depresses Macro~F1 without
+moving accuracy.
+
+\paragraph{Label noise: rating-text mismatch.}
+Many errors come from reviews whose text contradicts the star
+rating, e.g.\ a 4-star review whose text says \textit{``strings come
+out of tune so easily, also makes a weird noise on the amp?''}.
+The model correctly infers negative sentiment but is penalised by
+the positive label, exposing a fundamental limit of rating-derived
+labels for fine-grained sentiment.
+
+\paragraph{Mixed sentiment.}
+The second pattern involves reviews containing genuine positive and
+negative signals for \textit{different} aspects, e.g.\ a 5-star
+review reading \textit{``Everything is amazing with this guitar!!\
+But, the amp is absolute junk!''} where the negative half drives the
+model's prediction.
+This is the primary motivation for topic-level sentiment analysis
+(Section~\ref{sec:toplevel}): document-level labels cannot capture
+within-review variation across aspects.
+
+\subsection{Topic-Level Sentiment Analysis}
+\label{sec:toplevel}
+
+Document-level labels cannot capture within-review sentiment
+variation, since a reviewer may praise acoustic tone while
+criticizing string quality.
+We therefore employ two approaches to topic-level sentiment.
+
+\paragraph{Targeted sentiment via LLM (primary).}
+Mistral-7B with 5-shot prompting classifies sentiment
+\textit{specifically toward each review's dominant LDA topic}
+for LDA-assigned reviews
+(excluding 414 reviews with text length $\leq$ 10
+characters).
+Because LDA has already established topic relevance, no confidence
+threshold is needed.
+Results are in Table~\ref{tab:topics}.
+
+\paragraph{ABSA via zero-shot NLI (secondary).}
+Using BART-large-MNLI we classify every review against every one of
+the 14 topic hypotheses, keeping only assignments above a confidence
+threshold (see Appendix~\ref{app:repro}).
+All 14 topics score net positive under ABSA, compressed into the
+narrow band of 65.6\%-80.6\%, which we attribute to the
+dataset's strong positive skew (80\% positive reviews) pushing
+absolute scores toward the positive pole.
+By contrast, the LLM approach yields a far wider spread
+(17.4\%-96.2\%), with five topics scoring net negative.
+The two approaches agree only at the extremes (acoustic tone ranks
+first in both; shipping damage ranks last in both) but diverge
+substantially in the middle, for example Fret/neck setup
+(76.1\% ABSA vs.\ 43.5\% LLM) and String quality
+(74.6\% vs.\ 27.6\%).
+We read this as a methodological artifact: ABSA scores every review
+against every topic regardless of relevance, while the LLM approach
+operates only on LDA-confirmed assignments.
+We therefore use LLM-based targeted sentiment as the primary source
+for downstream analysis, and treat the ABSA agreement at the extremes
+as a sanity check only.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Topic-level sentiment distribution (guitars).
+Source: Mistral-7B targeted sentiment on LDA-assigned reviews.}
+\label{tab:topics}
+\begin{tabular}{lrcc}
+\toprule
+\textbf{Topic} & \textbf{N} & \textbf{Pos\%} & \textbf{Neg\%} \\
+\midrule
+Acoustic tone            & 3{,}649  & 96.2 &  3.8 \\
+Beginner learning        & 12{,}509 & 91.3 &  8.7 \\
+Pickups                  & 5{,}162  & 88.8 & 11.2 \\
+Guitar size              & 4{,}594  & 82.0 & 18.0 \\
+Playability / chords     & 4{,}437  & 81.4 & 18.6 \\
+Setup / action           & 3{,}844  & 79.9 & 20.1 \\
+Visual appearance        & 3{,}342  & 68.9 & 31.1 \\
+Accessories              & 7{,}147  & 67.7 & 32.3 \\
+Electronics / controls   & 1{,}438  & 62.8 & 37.2 \\
+Customer service / ret.\ & 5{,}466  & 47.3 & 52.7 \\
+Fret / neck setup        & 10{,}203 & 43.5 & 56.5 \\
+Tuning stability         & 5{,}053  & 33.2 & 66.8 \\
+String quality           & 4{,}820  & 27.6 & 72.4 \\
+Shipping damage          & 4{,}497  & 17.4 & 82.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------
+\section{Ad Generation and Evaluation}
+\label{sec:ads}
+
+\subsection{Ad Generation}
+\label{sec:adgen}
+
+\paragraph{Product and topic selection.}
+Rather than fixing topics at market level, we take a product-first
+approach so that both strategies receive equally rich source
+material.
+For each product we keep only topics with at least 5 positive and 5
+negative reviews, rank products by how many such topics they have,
+deduplicate by brand, and pick the top three; within each product we
+then pick the three topics closest to a 50/50 positive/negative
+split.
+The full eligibility numbers and the scoring formula are in
+Appendix~\ref{app:select}.
+
+The three selected guitars are entry-level products: the Davison
+Full Size Electric Guitar, the Directly Cheap Acoustic Pack, and
+the Crescent MG38 Acoustic Starter Pack.
+\textit{String quality} appears in all three, which lets us compare
+strategies on the same topic across different products.
+
+\paragraph{Two-strategy generation.}
+GPT-5.4 generates all ads in a two-step pipeline inspired by
+Chain-of-Thought prompting \cite{wei2022chain}: Step~1 extracts
+the most compelling genuine praise (\textit{insight\_a}) and the
+most common real concern (\textit{insight\_b}); Step~2 generates
+both strategies in a single call with both insights as context,
+preventing strategy convergence.
+
+\textit{Strategy~A} (strength-amplifying) adopts a celebratory,
+aspirational tone grounded in \textit{insight\_a}, mapping to
+Rossiter-Percy transformational motivation
+\cite{rossiter1991grid}.
+\textit{Strategy~B} (problem-solving) uses a reassurance framing
+with the signature \textit{``Not every [product] does X, but this
+one does''}, mapping to informational motivation.
+Total: 3 products $\times$ 3 topics $\times$ 2 strategies = 18 ads.
+
+\subsection{LLM-as-Judge Evaluation}
+\label{sec:judge}
+
+DeepSeek-V4-Flash serves as judge.
+Using a different company and architecture from the generator
+strongly mitigates self-enhancement bias \cite{zheng2023judging}.
+Strategy labels are withheld from the judge, and ad order is
+randomized to control for position bias.
+
+\paragraph{Pairwise evaluation (primary).}
+Each of the 9 product$\times$topic pairs is evaluated twice
+(A-first and B-first) and results averaged.
+Strategy~B wins 6/9 matchups (66.7\%); 2 ties; 1 Strategy~A win.
+
+\paragraph{Pointwise evaluation (supplementary).}
+Each ad is scored independently on four dimensions (1-5):
+Emotional Resonance (ELM peripheral route), Argument Strength
+(ELM central route) \cite{petty1986elm}, Specificity, and Purchase
+Motivation (AIDA).
+Chain-of-thought reasoning is required before scoring.
+
+\paragraph{Results.}
+Table~\ref{tab:ads} summarises both protocols.
+Both methods consistently favor Strategy~B (composite 3.17 vs.\
+2.69, $\Delta{=}0.48$).
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Ad evaluation results. Pairwise: win counts (9 matchups).
+Pointwise: mean scores (1-5 scale).}
+\label{tab:ads}
+\begin{tabular}{lcc}
+\toprule
+& \textbf{Strat.\ A} & \textbf{Strat.\ B} \\
+\midrule
+\multicolumn{3}{l}{\textit{Pairwise (primary)}} \\
+\quad Wins (Ties: 2)  & 1 / 9  & \textbf{6 / 9} \\[3pt]
+\multicolumn{3}{l}{\textit{Pointwise (supplementary)}} \\
+\quad Emot.\ Resonance   & 2.78 & \textbf{3.33} \\
+\quad Argument Strength  & 2.56 & \textbf{3.00} \\
+\quad Specificity        & 2.56 & \textbf{3.00} \\
+\quad Purchase Motiv.\   & 2.89 & \textbf{3.33} \\
+\quad \textbf{Composite} & 2.69 & \textbf{3.17} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Discussion.}
+Strategy~B winning on Emotional Resonance goes against ELM
+\cite{petty1986elm}, which predicts the aspirational
+(transformational) strategy should have the emotional edge.
+A possible explanation is loss aversion \cite{kahneman1979prospect}:
+the ``Not every X\ldots'' contrast frame triggers fear of a bad
+outcome, which produces a stronger emotional response than direct
+aspiration.
+The single Strategy~A win (Crescent MG38 $\times$ String quality)
+fits the mixed gain/loss framing evidence in the literature
+\cite{rothman1997shaping}: gain framing can outperform problem
+framing when positive aspiration is more credible than implied
+problem acknowledgment for a specific product-topic pair.
+
+% ------------------------------------------------------------------
+\section{Replication: Drums and Keyboards}
+\label{sec:rep}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Cross-subcategory ad evaluation summary.
+Pairwise: A/B/Tie counts.
+Pointwise: composite mean (1-5).}
+\label{tab:rep}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Subcategory} & \textbf{Pairwise} & \textbf{A} & \textbf{B} \\
+\midrule
+Guitars     & 1\,/\,6\,/\,2 & 2.69 & \textbf{3.17} \\
+Drums       & 1\,/\,5\,/\,2 & 2.81 & \textbf{3.56} \\
+Keyboards   & 0\,/\,5\,/\,3 & 2.56 & \textbf{3.12} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+To assess generalisability we apply the identical pipeline to the
+\textit{Drums \& Percussion} and \textit{Keyboards \& MIDI}
+subcategories of the same dataset, whose feature landscapes
+(\textit{drums}: percussion hardware and meditation chimes and \textit{keyboards}: key action and
+built-in sounds) differ markedly from guitars.
+
+\paragraph{LDA and topic-level sentiment.}
+The same grid search yields $K{=}10$ for drums (coherence~=~0.656)
+and $K{=}25$ for keyboards (coherence~=~0.576); the lower drums
+optimum reflects a smaller, more thematically concentrated corpus.
+After manual labeling we retain \textbf{8 topics} for drums (e.g.,
+\textit{Drum hardware/shells}, \textit{Product defects/returns}) and
+\textbf{14 topics} for keyboards (e.g., \textit{Key feel/weighted
+keys}, \textit{Returns/broken keys}).
+Each LDA-assigned review is scored with the fine-tuned RoBERTa
+classifier from Section~\ref{sec:doclevel}.
+The most criticised topic is \textit{Product defects/returns} for
+drums (55.4\% negative) and \textit{Returns/broken keys} for
+keyboards (68.6\% negative).
+Functional-quality issues thus dominate the negative pole in every
+subcategory, mirroring guitars (full distributions in
+Appendix~\ref{app:rep_topics}).
+
+\paragraph{Ad generation and evaluation.}
+We re-run the product-first selection and generate ads for the top
+three products per subcategory (8 product$\times$topic pairs each, as product per subcategory has only 2 topics meeting the review count threshold).
+Strategy~B wins both replications and leads on all pointwise
+dimensions (Table~\ref{tab:rep}), with margins larger than for
+guitars ($\Delta{=}0.75$ drums, $\Delta{=}0.56$ keyboards vs.\
+$\Delta{=}0.48$).
+The lone drums Strategy~A win (Woodstock Chimes $\times$ Cymbals)
+parallels Crescent $\times$ String quality on guitars.
+
+% ------------------------------------------------------------------
+\section{Conclusion}
+\label{sec:conclusion}
+
+Across guitars, drums, and keyboards, problem-solving ads consistently outperformed strength-amplifying ones, with functional-quality issues proving the most reliable hook for persuasion, though future work should validate these findings with larger samples and human evaluators.
+
+% ------------------------------------------------------------------
+\section*{Acknowledgements}
+We thank the Bocconi University NLP course staff for guidance
+and Bocconi University for HPC access.
+
+% ------------------------------------------------------------------
+% REFERENCES — inline, no bibtex needed
+% ------------------------------------------------------------------
+\begin{thebibliography}{10}
+
+\bibitem{hou2024bridging}
+Yupeng Hou, Jiacheng Li, Zhankui He, An Yan, Xiusi Chen, and
+Julian McAuley.
+\newblock Bridging Language and Items for Retrieval and Recommendation.
+\newblock \textit{arXiv preprint arXiv:2403.03952}, 2024.
+
+\bibitem{blei2003lda}
+David M. Blei, Andrew Y. Ng, and Michael I. Jordan.
+\newblock Latent {D}irichlet Allocation.
+\newblock \textit{Journal of Machine Learning Research}, 3:993--1022, 2003.
+
+\bibitem{jiang2023mistral}
+Albert Q. Jiang, Alexandre Sablayrolles, Arthur Mensch, Chris Bamford,
+Devendra Singh Chaplot, Diego de las Casas, Florian Bressand,
+Gianna Lengyel, Guillaume Lample, Lucile Saulnier, et al.
+\newblock Mistral 7B.
+\newblock \textit{arXiv preprint arXiv:2310.06825}, 2023.
+
+\bibitem{wei2022chain}
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia,
+Ed Chi, Quoc V. Le, and Denny Zhou.
+\newblock Chain-of-{T}hought Prompting Elicits Reasoning in Large Language
+  Models.
+\newblock In \textit{NeurIPS}, 2022.
+
+\bibitem{zheng2023judging}
+Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang,
+Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li,
+Eric P. Xing, Hao Zhang, Joseph E. Gonzalez, and Ion Stoica.
+\newblock Judging {LLM}-as-a-Judge with {MT}-Bench and Chatbot Arena.
+\newblock In \textit{NeurIPS}, 2023.
+
+\bibitem{kahneman1979prospect}
+Daniel Kahneman and Amos Tversky.
+\newblock Prospect Theory: An Analysis of Decision under Risk.
+\newblock \textit{Econometrica}, 47(2):263--291, 1979.
+
+\bibitem{rothman1997shaping}
+Alexander J. Rothman and Peter Salovey.
+\newblock Shaping Perceptions to Motivate Healthy Behavior: The Role of
+  Message Framing.
+\newblock \textit{Psychological Bulletin}, 121(1):3--19, 1997.
+
+\bibitem{lewis2020bart}
+Mike Lewis, Yinhan Liu, Naman Goyal, Marzieh Ghazvininejad,
+Abdelrahman Mohamed, Omer Levy, Veselin Stoyanov, and Luke Zettlemoyer.
+\newblock {BART}: Denoising Sequence-to-Sequence Pre-training for Natural
+  Language Generation, Translation, and Comprehension.
+\newblock In \textit{ACL}, 2020.
+
+\bibitem{reimers2019sbert}
+Nils Reimers and Iryna Gurevych.
+\newblock Sentence-{BERT}: Sentence Embeddings using {S}iamese
+  {BERT}-Networks.
+\newblock In \textit{EMNLP-IJCNLP}, 2019.
+
+\bibitem{liu2019roberta}
+Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Mandar Joshi,
+Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov.
+\newblock {R}o{BERT}a: A Robustly Optimized {BERT} Pretraining Approach.
+\newblock \textit{arXiv preprint arXiv:1907.11692}, 2019.
+
+\bibitem{roder2015coherence}
+Michael R{\"o}der, Andreas Both, and Alexander Hinneburg.
+\newblock Exploring the Space of Topic Coherence Measures.
+\newblock In \textit{Proceedings of the 8th ACM International Conference on
+  Web Search and Data Mining (WSDM)}, pages 399--408, 2015.
+
+\bibitem{grootendorst2022bertopic}
+Maarten Grootendorst.
+\newblock {BERT}opic: Neural Topic Modeling with a Class-based {TF-IDF}
+  Procedure.
+\newblock \textit{arXiv preprint arXiv:2203.05794}, 2022.
+
+\bibitem{petty1986elm}
+Richard E. Petty and John T. Cacioppo.
+\newblock \textit{Communication and Persuasion: Central and Peripheral
+  Routes to Attitude Change}.
+\newblock Springer-Verlag, New York, 1986.
+
+\bibitem{rossiter1991grid}
+John R. Rossiter, Larry Percy, and Robert J. Donovan.
+\newblock A Better Advertising Planning Grid.
+\newblock \textit{Journal of Advertising Research}, 31(5):11--21, 1991.
+
+\bibitem{brown2020fewshot}
+Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah,
+Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam,
+Girish Sastry, Amanda Askell, et al.
+\newblock Language Models are Few-Shot Learners.
+\newblock In \textit{NeurIPS}, 2020.
+
+\end{thebibliography}
+
+% ------------------------------------------------------------------
+% APPENDIX (does not count toward 4-page limit)
+% ------------------------------------------------------------------
+\appendix
+
+\section{Per-Topic Breakdown (All Methods)}
+\label{app:pertopic}
+
+Table~\ref{tab:pertopic} reports per-topic Macro~F1 for all
+document-level methods. \textit{Pickups} is consistently hardest;
+\textit{Tuning stability} consistently easiest.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\caption{Per-topic Macro~F1, guitar test set.}
+\label{tab:pertopic}
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Topic}
+  & \textbf{TF-IDF}
+  & \textbf{ST+LR}
+  & \textbf{nlptown}
+  & \textbf{Cardiff}
+  & \textbf{BART}
+  & \textbf{DeBERTa}
+  & \textbf{FT-Rob.}
+  & \textbf{Mistral} \\
+\midrule
+Accessories              & 0.803 & 0.838 & 0.862 & 0.838 & 0.848 & 0.853 & 0.914 & 0.885 \\
+Acoustic tone            & 0.821 & 0.872 & 0.808 & 0.785 & 0.864 & 0.810 & 0.876 & 0.927 \\
+Beginner learning        & 0.861 & 0.887 & 0.902 & 0.859 & 0.887 & 0.897 & 0.937 & 0.908 \\
+Customer service / ret.\ & 0.868 & 0.873 & 0.876 & 0.848 & 0.913 & 0.894 & 0.930 & 0.917 \\
+Electronics / controls   & 0.816 & 0.837 & 0.879 & 0.794 & 0.820 & 0.821 & 0.908 & 0.868 \\
+Fret / neck setup        & 0.884 & 0.880 & 0.887 & 0.844 & 0.908 & 0.892 & 0.939 & 0.906 \\
+Guitar size              & 0.760 & 0.825 & 0.886 & 0.790 & 0.836 & 0.814 & 0.886 & 0.896 \\
+Pickups                  & 0.824 & 0.763 & 0.711 & 0.692 & 0.776 & 0.744 & 0.855 & 0.773 \\
+Playability / chords     & 0.855 & 0.859 & 0.856 & 0.816 & 0.882 & 0.865 & 0.942 & 0.893 \\
+Setup / action           & 0.809 & 0.830 & 0.805 & 0.817 & 0.838 & 0.839 & 0.912 & 0.903 \\
+Shipping damage          & 0.887 & 0.874 & 0.899 & 0.889 & 0.913 & 0.888 & 0.929 & 0.912 \\
+String quality           & 0.894 & 0.898 & 0.891 & 0.869 & 0.906 & 0.905 & 0.948 & 0.907 \\
+Tuning stability         & 0.924 & 0.935 & 0.950 & 0.921 & 0.950 & 0.933 & 0.974 & 0.944 \\
+Visual appearance        & 0.845 & 0.847 & 0.845 & 0.801 & 0.867 & 0.838 & 0.913 & 0.872 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{ABSA vs.\ LLM Topic Sentiment Comparison}
+\label{app:absa}
+
+Table~\ref{tab:absa} compares the two topic-level sentiment approaches.
+ABSA scores are systematically inflated by the dataset's positive skew;
+the two methods agree at the extremes but diverge in the middle.
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\caption{Topic positive\% under ABSA (BART zero-shot) vs.\
+LLM few-shot (Mistral-7B). Sorted by LLM positive\%.}
+\label{tab:absa}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Topic} & \textbf{ABSA Pos\%} & \textbf{LLM Pos\%} \\
+\midrule
+Acoustic tone            & 80.6 & 96.2 \\
+Beginner learning        & 79.2 & 91.3 \\
+Pickups                  & 76.9 & 88.8 \\
+Guitar size              & 79.2 & 82.0 \\
+Playability / chords     & 79.6 & 81.4 \\
+Setup / action           & 78.4 & 79.9 \\
+Visual appearance        & 78.5 & 68.9 \\
+Accessories              & 70.6 & 67.7 \\
+Electronics / controls   & 77.4 & 62.8 \\
+Customer service / ret.\ & 70.7 & 47.3 \\
+Fret / neck setup        & 76.1 & 43.5 \\
+Tuning stability         & 73.2 & 33.2 \\
+String quality           & 74.6 & 27.6 \\
+Shipping damage          & 65.6 & 17.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Replication: Per-Topic Sentiment}
+\label{app:rep_topics}
+
+Tables~\ref{tab:topics_drums} and~\ref{tab:topics_keyboards} report
+the full topic-level positive/negative distributions for the drums
+and keyboards corpora, scored with the fine-tuned RoBERTa
+classifier on the LDA-assigned reviews.
+Functional-quality topics (\textit{Product defects/returns},
+\textit{Returns/broken keys}, \textit{Durability/stopped working})
+again sit at the bottom of the ranking, mirroring the
+\textit{Shipping damage} / \textit{String quality} / \textit{Tuning
+stability} cluster in guitars.
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Topic-level sentiment, drums.}
+\label{tab:topics_drums}
+\begin{tabular}{lrcc}
+\toprule
+\textbf{Topic} & \textbf{N} & \textbf{Pos\%} & \textbf{Neg\%} \\
+\midrule
+Gift / holiday purchase           & 23{,}389 & 97.0 &  3.0 \\
+Beginner / ease of play           & 12{,}469 & 92.1 &  7.9 \\
+Singing bowls / meditation        & 15{,}278 & 91.3 &  8.7 \\
+Drum hardware / shells            & 10{,}335 & 88.1 & 11.9 \\
+Cymbals                           & 10{,}587 & 87.6 & 12.4 \\
+Small percussion accessories      & 15{,}261 & 85.5 & 14.5 \\
+Electronic drums / practice pad   &  9{,}753 & 82.2 & 17.8 \\
+Product defects / returns         & 16{,}646 & 44.6 & 55.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Topic-level sentiment, keyboards.}
+\label{tab:topics_keyboards}
+\begin{tabular}{lrcc}
+\toprule
+\textbf{Topic} & \textbf{N} & \textbf{Pos\%} & \textbf{Neg\%} \\
+\midrule
+Gift / holiday purchase           & 6{,}100 & 99.1 &  0.9 \\
+Kids music lessons                & 2{,}559 & 97.1 &  2.9 \\
+Synthesizer / sound design        & 2{,}267 & 92.3 &  7.7 \\
+Beginner learning                 & 7{,}742 & 90.8 &  9.2 \\
+MIDI controller / live perform.\  & 1{,}577 & 89.7 & 10.3 \\
+Key feel / weighted keys          & 4{,}979 & 87.8 & 12.2 \\
+Brand quality / acoustic feel     & 4{,}814 & 83.8 & 16.2 \\
+Sustain pedal                     &   826   & 82.4 & 17.6 \\
+Sound quality / speaker           & 3{,}746 & 80.1 & 19.9 \\
+Appearance / color / display      & 1{,}293 & 78.3 & 21.7 \\
+Connectivity (USB/MIDI/phone)     & 1{,}676 & 68.4 & 31.6 \\
+Power supply \& accessories       & 3{,}581 & 66.8 & 33.2 \\
+Durability / stopped working      & 1{,}741 & 57.3 & 42.7 \\
+Returns / broken keys             & 5{,}696 & 31.4 & 68.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Pointwise Rubric and Two-Step Prompt}
+\label{app:rubric}
+
+\paragraph{Pointwise rubric (1--5, judge anchored).}
+\textbf{Emotional Resonance} (ELM peripheral / Rossiter--Percy):
+1 = no emotional cue, 3 = mild/generic affect, 5 = vivid and
+on-strategy.
+\textbf{Argument Strength} (ELM central): 1 = unsupported claim,
+3 = mixed specific/generic, 5 = concrete causal reasoning.
+\textbf{Specificity}: 1 = could describe any product, 3 = balanced,
+5 = product-specific terms throughout.
+\textbf{Purchase Motivation} (AIDA desire/action): 3 is
+deliberately calibrated as ``neutral'' to avoid optimistic drift on
+a 2--3 sentence ad format.
+
+\paragraph{Two-step ad generation (per product$\times$topic).}
+\textit{Step 1 (analysis).} The generator reads up to 10 positive
+and 10 negative real reviews for the topic and outputs
+\texttt{insight\_a} (most compelling genuine praise) and
+\texttt{insight\_b} (most common real concern with a feasible
+counter).
+\textit{Step 2 (generation).} A single call returns Strategy~A and
+Strategy~B together, with both insights as context, forcing active
+contrast and preventing convergence.
+Step 1 is the chain-of-thought scaffold and is grounded in actual
+review evidence rather than free generation.
+
+\section{Product$\times$Topic Selection Rule}
+\label{app:select}
+
+For every subcategory we (i)~enumerate all
+product$\times$topic pairs with $\geq$5 positive
+\textit{and} $\geq$5 negative reviews; (ii)~rank products by
+\texttt{score = n\_qualifying\_topics + description\_length / 1000};
+(iii)~deduplicate by brand keeping the highest-scoring product;
+(iv)~retain the top three products with at least 2 qualifying
+topics and a non-empty metadata description; (v)~for each retained
+product pick the (up to) 3 qualifying topics minimising
+$|\text{pct\_positive}-50\%|$ to maximise input parity between
+strategies.
+This is fully automated (no manual curation), so the procedure
+ports unchanged across guitars, drums, and keyboards.
+
+\section{Reproducibility and Resources}
+\label{app:repro}
+
+\paragraph{Splits.}
+All sentiment classifiers use stratified 80/20 splits with
+\texttt{random\_state=42}.
+The default test set holds 24{,}815 reviews
+(3{,}698 negative / 21{,}117 positive).
+Fine-tuned RoBERTa and Mistral-7B use the same split applied to the
+24{,}849 rating-3-free rows, which differs by 34 samples
+($<$0.15\%) and does not affect conclusions.
+
+\paragraph{LDA hyperparameters.}
+LDA is trained with Gensim using $\alpha{=}$asymmetric,
+$\eta{=}$auto, 10~passes, evaluated with the C$_v$ coherence metric
+\cite{roder2015coherence}.
+The grid search covers
+$K \in \{5, 10, 15, 20, 25\}$ and four $(\alpha, \eta)$
+configurations.
+Topic assignment uses a probability threshold of 0.15.
+
+\paragraph{Classical baseline tuning.}
+TF-IDF + LR best parameters: $C{=}10$, max\_features=100k,
+ngram\_range=(1,2), max\_df=0.85.
+Sentence Transformer embeddings use the
+\texttt{all-mpnet-base-v2} model.
+
+\paragraph{Fine-tuned RoBERTa.}
+RoBERTa-base, 3 epochs, learning rate $2{\times}10^{-5}$, linear
+warmup, early stopping on validation Macro~F1.
+
+\paragraph{Mistral 5-shot.}
+Mistral-7B-Instruct-v0.3 with temperature~0 and a fixed 5-shot
+exemplar set drawn from the training split.
+
+\paragraph{ABSA threshold.}
+BART-large-MNLI assigns a topic label only when entailment
+probability is at least 0.70.
+Without this threshold, low-confidence predictions inflate noise.
+
+\paragraph{Per-topic error rates (RoBERTa).}
+Hardest topics: Shipping damage 7.1\%, Customer service / returns
+6.8\%.
+Easiest topics: Acoustic tone 1.0\%, Setup / action 1.3\%.
+
+\paragraph{Stage-2 API setup.}
+Generator and judge models in Stage~2 are accessed through their
+public APIs at the time of writing.
+Ad order is randomised and each pair is judged twice
+(A-first and B-first) to control for position bias
+\cite{zheng2023judging}.
+
+\end{document}
