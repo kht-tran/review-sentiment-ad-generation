@@ -1,0 +1,81 @@
+Step 11 — Pre-trained BERT Sentiment Comparison (Guitars)
+=================================================================
+
+Model: nlptown/bert-base-multilingual-uncased-sentiment
+  Accuracy:  0.9444
+  Macro F1:  0.9008
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    negative       0.75      0.94      0.84      3698
+    positive       0.99      0.94      0.97     21117
+
+    accuracy                           0.94     24815
+   macro avg       0.87      0.94      0.90     24815
+weighted avg       0.95      0.94      0.95     24815
+
+
+Per-topic breakdown — nlptown:
+Topic                                    N    Acc  MacroF1
+------------------------------------------------------------
+Topic 01 — Customer service / returns     1627  0.878    0.876
+Topic 04 — Beginner learning              2677  0.975    0.902
+Topic 05 — Accessories                     688  0.961    0.892
+Topic 06 — Electronics / controls          419  0.933    0.879
+Topic 07 — Setup / action                  994  0.954    0.805
+Topic 08 — Guitar size                    1050  0.967    0.886
+Topic 09 — Fret / neck setup              1172  0.925    0.914
+Topic 10 — String quality                 1069  0.893    0.891
+Topic 11 — Shipping damage                1110  0.900    0.899
+Topic 12 — Accessories                    1101  0.915    0.849
+Topic 14 — Visual appearance               754  0.926    0.845
+Topic 15 — Pickups                        1469  0.938    0.711
+Topic 17 — Fret / neck setup              1071  0.892    0.849
+Topic 21 — Playability / chords           1047  0.947    0.856
+Topic 22 — Acoustic tone                   919  0.970    0.808
+Topic 24 — Tuning stability               1059  0.950    0.950
+
+Model: cardiffnlp/twitter-roberta-base-sentiment-latest
+  Accuracy:  0.9332
+  Macro F1:  0.8753
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    negative       0.74      0.85      0.79      3698
+    positive       0.97      0.95      0.96     21117
+
+    accuracy                           0.93     24815
+   macro avg       0.86      0.90      0.88     24815
+weighted avg       0.94      0.93      0.93     24815
+
+
+Per-topic breakdown — cardiffnlp:
+Topic                                    N    Acc  MacroF1
+------------------------------------------------------------
+Topic 01 — Customer service / returns     1627  0.854    0.848
+Topic 04 — Beginner learning              2677  0.965    0.859
+Topic 05 — Accessories                     688  0.946    0.854
+Topic 06 — Electronics / controls          419  0.885    0.794
+Topic 07 — Setup / action                  994  0.960    0.817
+Topic 08 — Guitar size                    1050  0.941    0.790
+Topic 09 — Fret / neck setup              1172  0.891    0.870
+Topic 10 — String quality                 1069  0.874    0.869
+Topic 11 — Shipping damage                1110  0.889    0.889
+Topic 12 — Accessories                    1101  0.907    0.829
+Topic 14 — Visual appearance               754  0.912    0.801
+Topic 15 — Pickups                        1469  0.944    0.692
+Topic 17 — Fret / neck setup              1071  0.864    0.807
+Topic 21 — Playability / chords           1047  0.932    0.816
+Topic 22 — Acoustic tone                   919  0.971    0.785
+Topic 24 — Tuning stability               1059  0.922    0.921
+
+
+=================================================================
+COMPARISON SUMMARY
+=================================================================
+Model                                                 Accuracy  Macro F1
+------------------------------------------------------------------------
+nlptown/bert-base-multilingual-uncased-sentiment        0.9444    0.9008
+cardiffnlp/twitter-roberta-base-sentiment-latest        0.9332    0.8753

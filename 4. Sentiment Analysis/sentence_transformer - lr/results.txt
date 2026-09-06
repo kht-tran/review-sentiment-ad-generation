@@ -1,0 +1,40 @@
+Step 10 — Sentence Transformer (all-mpnet-base-v2) + Logistic Regression (Guitars)
+============================================================
+
+Model:            all-mpnet-base-v2
+Best C:           100.0
+Best CV macro F1: 0.9021
+
+Test Accuracy:    0.9502
+Test Macro F1:    0.8980
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    negative       0.86      0.79      0.83      3698
+    positive       0.96      0.98      0.97     21117
+
+    accuracy                           0.95     24815
+   macro avg       0.91      0.88      0.90     24815
+weighted avg       0.95      0.95      0.95     24815
+
+
+Per-topic breakdown (test set, assigned reviews only):
+Topic                                    N    Acc  MacroF1
+------------------------------------------------------------
+Topic 01 — Customer service / returns     1627  0.880    0.873
+Topic 04 — Beginner learning              2677  0.976    0.887
+Topic 05 — Accessories                     688  0.968    0.889
+Topic 06 — Electronics / controls          419  0.926    0.837
+Topic 07 — Setup / action                  994  0.973    0.830
+Topic 08 — Guitar size                    1050  0.960    0.825
+Topic 09 — Fret / neck setup              1172  0.912    0.890
+Topic 10 — String quality                 1069  0.904    0.898
+Topic 11 — Shipping damage                1110  0.874    0.874
+Topic 12 — Accessories                    1101  0.915    0.817
+Topic 14 — Visual appearance               754  0.943    0.847
+Topic 15 — Pickups                        1469  0.979    0.763
+Topic 17 — Fret / neck setup              1071  0.919    0.861
+Topic 21 — Playability / chords           1047  0.961    0.859
+Topic 22 — Acoustic tone                   919  0.987    0.872
+Topic 24 — Tuning stability               1059  0.935    0.935

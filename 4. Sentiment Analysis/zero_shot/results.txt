@@ -1,0 +1,83 @@
+Step 12 — Zero-shot Sentiment Comparison (Guitars)
+Candidate labels: ['positive', 'negative']
+Hypothesis template: "The sentiment of this review is {}."
+=================================================================
+
+Model: facebook/bart-large-mnli
+  Accuracy:  0.9522
+  Macro F1:  0.9112
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    negative       0.80      0.91      0.85      3698
+    positive       0.98      0.96      0.97     21117
+
+    accuracy                           0.95     24815
+   macro avg       0.89      0.94      0.91     24815
+weighted avg       0.96      0.95      0.95     24815
+
+
+Per-topic breakdown — bart:
+Topic                                    N    Acc  MacroF1
+------------------------------------------------------------
+Topic 01 — Customer service / returns     1627  0.916    0.913
+Topic 04 — Beginner learning              2677  0.972    0.887
+Topic 05 — Accessories                     688  0.948    0.859
+Topic 06 — Electronics / controls          419  0.900    0.820
+Topic 07 — Setup / action                  994  0.965    0.838
+Topic 08 — Guitar size                    1050  0.951    0.836
+Topic 09 — Fret / neck setup              1172  0.938    0.926
+Topic 10 — String quality                 1069  0.909    0.906
+Topic 11 — Shipping damage                1110  0.914    0.913
+Topic 12 — Accessories                    1101  0.914    0.842
+Topic 14 — Visual appearance               754  0.940    0.867
+Topic 15 — Pickups                        1469  0.966    0.776
+Topic 17 — Fret / neck setup              1071  0.922    0.879
+Topic 21 — Playability / chords           1047  0.957    0.882
+Topic 22 — Acoustic tone                   919  0.984    0.864
+Topic 24 — Tuning stability               1059  0.950    0.950
+
+Model: cross-encoder/nli-deberta-v3-large
+  Accuracy:  0.9497
+  Macro F1:  0.9009
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    negative       0.83      0.83      0.83      3698
+    positive       0.97      0.97      0.97     21117
+
+    accuracy                           0.95     24815
+   macro avg       0.90      0.90      0.90     24815
+weighted avg       0.95      0.95      0.95     24815
+
+
+Per-topic breakdown — deberta:
+Topic                                    N    Acc  MacroF1
+------------------------------------------------------------
+Topic 01 — Customer service / returns     1627  0.899    0.894
+Topic 04 — Beginner learning              2677  0.976    0.897
+Topic 05 — Accessories                     688  0.964    0.881
+Topic 06 — Electronics / controls          419  0.916    0.821
+Topic 07 — Setup / action                  994  0.970    0.839
+Topic 08 — Guitar size                    1050  0.952    0.814
+Topic 09 — Fret / neck setup              1172  0.927    0.911
+Topic 10 — String quality                 1069  0.909    0.905
+Topic 11 — Shipping damage                1110  0.888    0.888
+Topic 12 — Accessories                    1101  0.921    0.841
+Topic 14 — Visual appearance               754  0.935    0.838
+Topic 15 — Pickups                        1469  0.967    0.744
+Topic 17 — Fret / neck setup              1071  0.913    0.861
+Topic 21 — Playability / chords           1047  0.955    0.865
+Topic 22 — Acoustic tone                   919  0.976    0.810
+Topic 24 — Tuning stability               1059  0.933    0.933
+
+
+=================================================================
+COMPARISON SUMMARY
+=================================================================
+Model                                          Accuracy  Macro F1
+-----------------------------------------------------------------
+facebook/bart-large-mnli                         0.9522    0.9112
+cross-encoder/nli-deberta-v3-large               0.9497    0.9009

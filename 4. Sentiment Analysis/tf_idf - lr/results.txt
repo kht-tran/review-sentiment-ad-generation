@@ -1,0 +1,39 @@
+TF-IDF + Logistic Regression (Guitars)
+==================================================
+
+Best params:      {'clf__C': 10.0, 'tfidf__max_df': 0.85, 'tfidf__max_features': 100000, 'tfidf__ngram_range': (1, 2)}
+Best CV macro F1: 0.8907
+
+Test Accuracy:    0.9482
+Test Macro F1:    0.8929
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    negative       0.87      0.77      0.82      3698
+    positive       0.96      0.98      0.97     21117
+
+    accuracy                           0.95     24815
+   macro avg       0.91      0.88      0.89     24815
+weighted avg       0.95      0.95      0.95     24815
+
+
+Per-topic breakdown (test set, assigned reviews only):
+Topic                                    N    Acc  MacroF1
+------------------------------------------------------------
+Topic 01 — Customer service / returns     1627  0.876    0.868
+Topic 04 — Beginner learning              2677  0.973    0.861
+Topic 05 — Accessories                     688  0.946    0.791
+Topic 06 — Electronics / controls          419  0.919    0.816
+Topic 07 — Setup / action                  994  0.971    0.809
+Topic 08 — Guitar size                    1050  0.947    0.760
+Topic 09 — Fret / neck setup              1172  0.924    0.906
+Topic 10 — String quality                 1069  0.899    0.894
+Topic 11 — Shipping damage                1110  0.887    0.887
+Topic 12 — Accessories                    1101  0.914    0.805
+Topic 14 — Visual appearance               754  0.943    0.845
+Topic 15 — Pickups                        1469  0.984    0.824
+Topic 17 — Fret / neck setup              1071  0.909    0.848
+Topic 21 — Playability / chords           1047  0.962    0.855
+Topic 22 — Acoustic tone                   919  0.984    0.821
+Topic 24 — Tuning stability               1059  0.924    0.924

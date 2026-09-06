@@ -1,0 +1,18 @@
+BERTopic Results — Guitars
+Topics found: 14 | Outliers: 64,994 (48.5%)
+======================================================================
+
+Topic 00 (55,599 reviews): guitar (0.029) | great (0.015) | br (0.014) | good (0.014) | sound (0.013) | like (0.012) | just (0.011) | strings (0.011)
+Topic 01 (6,689 reviews): loves (0.07) | product (0.065) | great (0.063) | gift (0.057) | good (0.051) | loved (0.042) | price (0.038) | grandson (0.034)
+Topic 02 (1,787 reviews): broken (0.051) | product (0.037) | damaged (0.033) | return (0.03) | came (0.029) | broke (0.029) | item (0.028) | junk (0.027)
+Topic 03 (1,483 reviews): great (0.217) | awesome (0.207) | excellent (0.201) | nice (0.168) | perfect (0.16) | great great (0.151) | ok (0.135) | good (0.133)
+Topic 04 (1,186 reviews): la (0.125) | muy (0.1) | que (0.099) | es (0.096) | el (0.096) | para (0.085) | guitarra (0.083) | en (0.059)
+Topic 05 (576 reviews): works (0.216) | sounds (0.199) | great (0.163) | works great (0.13) | sounds great (0.124) | great works (0.103) | good (0.08) | great sounds (0.08)
+Topic 06 (514 reviews): love love (1.367) | love (1.091) | like love (0.238) | love like (0.234) | love loved (0.19) | loved love (0.16) | like (0.143) | loved (0.133)
+Topic 07 (365 reviews): case (0.135) | bag (0.069) | fit (0.051) | zipper (0.044) | great (0.038) | fits (0.032) | great case (0.028) | nice (0.028)
+Topic 08 (317 reviews): exactly (0.287) | advertised (0.242) | expected (0.217) | described (0.18) | just (0.125) | better expected (0.11) | wanted (0.11) | expectations (0.105)
+Topic 09 (110 reviews): came (0.146) | comes (0.105) | comes need (0.071) | need (0.069) | great (0.049) | came needed (0.045) | needed (0.041) | included (0.035)
+Topic 10 (85 reviews): nice meet (1.004) | meet (0.628) | beginners perfecta (0.53) | love encanta (0.53) | meet nice (0.53) | perfecta nice (0.53) | encanta perfect (0.53) | meet described (0.53)
+Topic 11 (70 reviews): broken (0.059) | beginners (0.05) | crying (0.042) | great beginners (0.042) | great (0.036) | came broken (0.034) | videoidfba429c1904ee71b0da678529f8b317c (0.029) | 400 videoid4ac85b164e4ba8b96ebaa10ee66eaab0 (0.029)
+Topic 12 (66 reviews): ok ok (0.966) | ok (0.924) | ok good (0.31) | good (0.241) | okay (0.233) | good good (0.17) | alright (0.17) | ok alright (0.14)
+Topic 13 (51 reviews): stay tuned (0.733) | tuned (0.564) | stay (0.553) | wont stay (0.311) | wont (0.21) | doesnt stay (0.164) | tuned wont (0.136) | tuned stay (0.133)
