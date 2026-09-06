@@ -1,0 +1,37 @@
+LDA Topic Model — Drums & Percussion (25 topics)
+=================================================================
+
+READ THIS FILE to choose your FINAL_TOPICS for assign_topics_drums.py
+Pick topic IDs that are interpretable and instrument-feature-specific.
+Ignore topics that are generic (e.g., all shipping/return words mixed)
+or incoherent (no clear theme).
+
+=================================================================
+
+Topic 00: 0.124*"quality" + 0.091*"beautiful" + 0.067*"perfect" + 0.051*"amazing" + 0.045*"awesome" + 0.042*"happy" + 0.031*"thank" + 0.026*"fast" + 0.021*"absolutely" + 0.020*"thanks" + 0.017*"look" + 0.015*"high" + 0.014*"excellent" + 0.014*"delivery" + 0.013*"super"
+Topic 01: 0.131*"bell" + 0.074*"loud" + 0.041*"kid" + 0.037*"cowbell" + 0.029*"ring" + 0.023*"perfect" + 0.022*"noise" + 0.020*"cute" + 0.018*"game" + 0.016*"enough" + 0.013*"worked" + 0.011*"need" + 0.010*"handle" + 0.010*"work" + 0.010*"make"
+Topic 02: 0.088*"year" + 0.088*"love" + 0.088*"gift" + 0.047*"loved" + 0.043*"christmas" + 0.038*"daughter" + 0.028*"grandson" + 0.019*"perfect" + 0.019*"birthday" + 0.019*"purchased" + 0.017*"husband" + 0.015*"friend" + 0.013*"quality" + 0.012*"gave" + 0.012*"playing"
+Topic 03: 0.182*"bowl" + 0.054*"singing" + 0.032*"beautiful" + 0.023*"sing" + 0.016*"mallet" + 0.015*"tone" + 0.013*"beautifully" + 0.011*"meditation" + 0.011*"crystal" + 0.009*"striker" + 0.009*"first" + 0.009*"vibration" + 0.008*"sings" + 0.008*"healing" + 0.008*"ring"
+Topic 04: 0.143*"easy" + 0.114*"recommend" + 0.051*"beginner" + 0.050*"highly" + 0.040*"case" + 0.029*"play" + 0.028*"definitely" + 0.023*"light" + 0.022*"perfect" + 0.020*"anyone" + 0.020*"carry" + 0.019*"come" + 0.016*"recommended" + 0.015*"assemble" + 0.015*"carrying"
+Topic 05: 0.102*"quality" + 0.045*"better" + 0.043*"excellent" + 0.042*"tambourine" + 0.040*"work" + 0.026*"value" + 0.024*"sturdy" + 0.023*"pretty" + 0.022*"seems" + 0.021*"cheap" + 0.018*"look" + 0.018*"feel" + 0.016*"durable" + 0.015*"expected" + 0.014*"solid"
+Topic 06: 0.148*"size" + 0.147*"small" + 0.064*"expected" + 0.060*"smaller" + 0.038*"thought" + 0.030*"larger" + 0.029*"bigger" + 0.020*"right" + 0.016*"large" + 0.016*"hand" + 0.011*"full" + 0.011*"cute" + 0.009*"sized" + 0.009*"piece" + 0.009*"smell"
+Topic 07: 0.084*"head" + 0.060*"snare" + 0.024*"bass" + 0.015*"hardware" + 0.012*"skin" + 0.012*"remo" + 0.012*"shell" + 0.012*"tuning" + 0.010*"pearl" + 0.008*"tom" + 0.008*"tune" + 0.008*"kick" + 0.007*"ring" + 0.007*"better" + 0.007*"year"
+Topic 08: 0.027*"play" + 0.026*"practice" + 0.019*"take" + 0.017*"volume" + 0.017*"headphone" + 0.013*"beat" + 0.013*"playing" + 0.013*"want" + 0.012*"work" + 0.011*"need" + 0.011*"foot" + 0.010*"real" + 0.009*"space" + 0.009*"room" + 0.009*"thing"
+Topic 09: 0.104*"best" + 0.067*"stick" + 0.057*"ever" + 0.028*"expectation" + 0.018*"life" + 0.018*"clean" + 0.015*"rain" + 0.013*"wood" + 0.012*"authentic" + 0.012*"block" + 0.011*"item" + 0.010*"water" + 0.010*"heard" + 0.010*"thing" + 0.010*"guiro"
+Topic 10: 0.037*"thing" + 0.031*"worth" + 0.025*"know" + 0.021*"something" + 0.019*"want" + 0.016*"going" + 0.016*"better" + 0.014*"buying" + 0.012*"think" + 0.011*"nothing" + 0.011*"every" + 0.010*"cheap" + 0.010*"else" + 0.009*"pretty" + 0.009*"sure"
+Topic 11: 0.020*"first" + 0.018*"service" + 0.015*"customer" + 0.015*"instruction" + 0.015*"company" + 0.014*"return" + 0.013*"day" + 0.013*"took" + 0.012*"week" + 0.012*"part" + 0.012*"missing" + 0.011*"broke" + 0.011*"received" + 0.011*"replacement" + 0.011*"month"
+Topic 12: 0.109*"play" + 0.092*"instrument" + 0.085*"music" + 0.036*"song" + 0.035*"playing" + 0.031*"child" + 0.026*"kid" + 0.025*"musical" + 0.022*"learn" + 0.019*"learning" + 0.018*"book" + 0.017*"enjoy" + 0.011*"along" + 0.011*"adult" + 0.008*"musician"
+Topic 13: 0.061*"note" + 0.057*"tone" + 0.026*"tune" + 0.020*"pitch" + 0.019*"tongue" + 0.015*"tuned" + 0.014*"high" + 0.014*"steel" + 0.012*"clear" + 0.012*"number" + 0.010*"higher" + 0.009*"flat" + 0.008*"tuning" + 0.008*"sticker" + 0.008*"produce"
+Topic 14: 0.019*"piece" + 0.018*"inside" + 0.013*"metal" + 0.013*"side" + 0.013*"broken" + 0.012*"case" + 0.012*"apart" + 0.012*"plastic" + 0.010*"fell" + 0.010*"wood" + 0.009*"strap" + 0.009*"easily" + 0.009*"thin" + 0.008*"first" + 0.008*"fall"
+Topic 15: 0.098*"band" + 0.048*"school" + 0.027*"home" + 0.020*"performance" + 0.019*"purpose" + 0.019*"live" + 0.019*"show" + 0.017*"bring" + 0.016*"triangle" + 0.015*"practice" + 0.014*"group" + 0.014*"purchased" + 0.013*"percussionist" + 0.012*"high" + 0.012*"needed"
+Topic 16: 0.062*"fantastic" + 0.029*"unique" + 0.027*"must" + 0.026*"symbol" + 0.021*"special" + 0.018*"useful" + 0.015*"loving" + 0.013*"package" + 0.012*"functional" + 0.011*"neat" + 0.010*"sold" + 0.010*"decorative" + 0.010*"produced" + 0.010*"shipment" + 0.010*"folk"
+Topic 17: 0.026*"pedal" + 0.017*"pad" + 0.015*"kick" + 0.012*"work" + 0.012*"trigger" + 0.010*"module" + 0.010*"alesis" + 0.009*"feel" + 0.009*"roland" + 0.009*"kit" + 0.009*"acoustic" + 0.008*"electronic" + 0.008*"issue" + 0.008*"bass" + 0.007*"cable"
+Topic 18: 0.083*"church" + 0.079*"perfectly" + 0.067*"quickly" + 0.059*"nicely" + 0.048*"gong" + 0.048*"packaged" + 0.044*"fit" + 0.027*"frog" + 0.027*"shipped" + 0.023*"work" + 0.021*"packed" + 0.018*"hoped" + 0.017*"gorgeous" + 0.013*"sweet" + 0.011*"office"
+Topic 19: 0.072*"stand" + 0.035*"heavy" + 0.027*"inch" + 0.023*"djembe" + 0.015*"conga" + 0.013*"hold" + 0.012*"screw" + 0.012*"work" + 0.011*"place" + 0.011*"mount" + 0.011*"base" + 0.011*"foot" + 0.010*"need" + 0.009*"enough" + 0.009*"around"
+Topic 20: 0.155*"cymbal" + 0.037*"crash" + 0.032*"ride" + 0.015*"hat" + 0.013*"china" + 0.013*"zildjian" + 0.012*"splash" + 0.011*"rock" + 0.010*"sounding" + 0.009*"sabian" + 0.008*"bright" + 0.007*"year" + 0.007*"dark" + 0.007*"line" + 0.007*"playing"
+Topic 21: 0.083*"exactly" + 0.075*"chime" + 0.036*"described" + 0.036*"class" + 0.031*"wonderful" + 0.029*"lovely" + 0.028*"student" + 0.027*"beautiful" + 0.026*"looking" + 0.026*"attention" + 0.025*"needed" + 0.025*"perfect" + 0.024*"meditation" + 0.024*"wanted" + 0.024*"classroom"
+Topic 22: 0.060*"color" + 0.060*"look" + 0.044*"picture" + 0.037*"received" + 0.025*"description" + 0.023*"disappointed" + 0.023*"advertised" + 0.018*"black" + 0.016*"photo" + 0.015*"different" + 0.012*"blue" + 0.011*"pictured" + 0.011*"paint" + 0.010*"show" + 0.010*"looked"
+Topic 23: 0.078*"hand" + 0.036*"mallet" + 0.032*"shaker" + 0.027*"finger" + 0.024*"stick" + 0.023*"hold" + 0.023*"plastic" + 0.019*"hard" + 0.018*"wooden" + 0.016*"baby" + 0.015*"soft" + 0.013*"one" + 0.013*"loud" + 0.013*"pair" + 0.012*"maraca"
+Topic 24: 0.054*"cajon" + 0.029*"bongo" + 0.018*"bass" + 0.018*"snare" + 0.016*"tone" + 0.015*"playing" + 0.015*"deep" + 0.014*"meinl" + 0.014*"play" + 0.012*"played" + 0.012*"instrument" + 0.010*"guitar" + 0.010*"first" + 0.009*"wood" + 0.009*"look"
+
+Coherence score (c_v): 0.6009
