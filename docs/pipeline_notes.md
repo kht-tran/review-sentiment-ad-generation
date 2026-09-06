@@ -1,7 +1,7 @@
 # Pipeline Reference
-Technical/internal reference documenting what each folder contains and what it produces. 
-
-All scripts were run on an academic HPC cluster (SLURM). `.sh` files are submitted with `sbatch` from within each step's folder.
+Technical/internal reference documenting what each folder contains and what it produces.
+ 
+All scripts were originally run via SLURM on an academic HPC cluster (`sbatch script.sh`), with checkpointing so jobs could be safely resubmitted if interrupted. The SLURM job wrapper (`.sh`) files themselves are cluster-specific and not included in this repo. Every script below can be run directly as a plain Python command, most of which take no command-line arguments (parameters hardcoded in the `.py` files); the two exceptions are noted in sections 4f and 4g below.
 
 ## Environment
 
@@ -118,16 +118,24 @@ BERTopic was tested as an alternative to LDA but produced ~48% outliers on revie
 ---
 
 ## 3.2. Assign Topics
-
+ 
 **Folder:** `3.2. Assign/`
-
-Topic assignment is run as part of `lda_guitars.py` (Step 2 above). This folder contains the output parquet files at different development versions:
-
+ 
+`assign_compare.py` runs a small ablation to separate two design choices in topic assignment — **topic merging** vs. **assignment threshold** — rather than picking both at once:
+ 
+| Version | Topics | Threshold | Purpose |
+|---|---|---|---|
+| v1 | 13 original topics | 0.15 | Baseline |
+| v2 | 14 merged topics | 0.15 | Isolates effect of merging near-duplicate topics <br>(e.g. two separate "Accessories" and "Fret/neck setup" topics collapsed into one each)<br>**used in all downstream steps** |
+| v3 | 14 merged topics | 0.30 | Isolates effect of a stricter assignment threshold |
+ 
+Each config assigns every guitar review its top-scoring topic (if above threshold) and saves the result:
+ 
 | File | Description |
 |---|---|
-| `guitars_with_topics_v1.parquet` | Initial assignment |
-| `guitars_with_topics_v2.parquet` | Revised labels — used in all downstream steps |
-| `guitars_with_topics_v3.parquet` | Further refinement |
+| `guitars_with_topics_v1.parquet` | Baseline assignment |
+| `guitars_with_topics_v2.parquet` | Merged topics - used in all downstream steps |
+| `guitars_with_topics_v3.parquet` | Merged topics, stricter threshold |
 
 ---
 
@@ -138,35 +146,49 @@ Topic assignment is run as part of `lda_guitars.py` (Step 2 above). This folder 
 Six different modelling approaches, each in their own subfolder. All use the same binary task (positive/negative, rating 3 dropped) and the same 80/20 stratified train/test split.
 
 After running the approaches, two notebooks at the folder root aggregate the results:
-- `model_comparison.ipynb` — side-by-side comparison of all approaches
-- `topic_feature_analysis.ipynb` → `topic_feature_analysis.csv` — per-topic sentiment breakdown
+- `model_comparison.ipynb`: side-by-side comparison of all approaches
+- `topic_feature_analysis.ipynb` → `topic_feature_analysis.csv`: per-topic sentiment breakdown
 
 ### 4a. TF-IDF + Logistic Regression
-**Subfolder:** `tf_idf - lr/` · `sbatch run.sh` → `results.txt`, `predictions.parquet`
+**Subfolder:** `tf_idf - lr/` · `python script.py` 
 
+→ `results.txt`, `predictions.parquet`
+ 
 ### 4b. Sentence Transformer + Logistic Regression
-**Subfolder:** `sentence_transformer - lr/` · `sbatch run.sh` → `results.txt`, `predictions.parquet`, `embeddings.npy` (cached sentence embeddings)
+**Subfolder:** `sentence_transformer - lr/` · `python script.py` 
 
+→ `results.txt`, `predictions.parquet`, `embeddings.npy` (cached sentence embeddings)
+ 
 ### 4c. Pretrained BERT (off-the-shelf)
-**Subfolder:** `pretrained_bert/` · `sbatch run_step11.sh` — tests `nlptown` and `cardiffnlp` sentiment models with no fine-tuning (GPU required) → `results.txt`, `predictions.parquet`, `preds_*.npy`, `probs_*.npy`
+**Subfolder:** `pretrained_bert/` · `python script.py`: tests `nlptown` and `cardiffnlp` sentiment models with no fine-tuning (GPU required) 
 
+→ `results.txt`, `predictions.parquet`, `preds_*.npy`, `probs_*.npy`
+ 
 ### 4d. Zero-shot Classification
-**Subfolder:** `zero_shot/` · `sbatch run.sh` — `facebook/bart-large-mnli` and `cross-encoder/nli-deberta-v3-large` via NLI zero-shot, no training (GPU required) → `results.txt`, `predictions.parquet`, `preds_*.npy`, `probs_*.npy`
+**Subfolder:** `zero_shot/` · `python script.py`: `facebook/bart-large-mnli` and `cross-encoder/nli-deberta-v3-large` via NLI zero-shot, no training (GPU required) 
 
+→ `results.txt`, `predictions.parquet`, `preds_*.npy`, `probs_*.npy`
+ 
 ### 4e. Fine-tuned RoBERTa
 **Subfolder:** `fine_tuned_roberta/`
-
+ 
 | File | Purpose |
 |---|---|
-| `bert_finetune.py` + `submit_bert.sh` | Run on HPC - fine-tunes RoBERTa on the guitar train split |
+| `bert_finetune.py` | Run - fine-tunes RoBERTa on the guitar train split |
 | `bert_sentiment_finetune.ipynb` | Local/Colab version of the same fine-tuning |
 | `bert_result.ipynb` | Open to view results - loads predictions, shows metrics |
 | `bert_error_analysis.ipynb` | Open to view analysis - inspects misclassified examples |
-
+ 
 Outputs: `bert_predictions.csv`, `bert_topic_sentiment.csv`
 
 ### 4f. LLM Few-shot (Document-level)
 **Subfolder:** `llm_few_shot_doc/`
+
+Runs `mistralai/Mistral-7B-Instruct-v0.3` locally (HuggingFace, GPU) in few-shot mode - not an external API call.
+ 
+```bash
+python llm_fewshot_hpc.py --data guitars_with_topics_v2.parquet --model mistralai/Mistral-7B-Instruct-v0.3 --batch_size 8
+```
 
 | File | Purpose |
 |---|---|
@@ -179,6 +201,10 @@ Output: `llm_predictions.csv`
 ### 4g. LLM Few-shot (Topic-aware)
 **Subfolder:** `llm_few_shot_topic/` - same structure as 4f, but the LLM prompt includes the review's assigned topic label as context.
 
+```bash
+python llm_topic_hpc.py --data guitars_with_topics_v2.parquet --model mistralai/Mistral-7B-Instruct-v0.3 --batch_size 8
+```
+
 | File | Purpose |
 |---|---|
 | `llm_topic_hpc.py` + `submit_llm_topic.sh` | Run on HPC |
@@ -188,7 +214,9 @@ Output: `llm_predictions.csv`
 Outputs: `llm_topic_predictions.csv`, `llm_topic_sentiment.csv`
 
 ### 4h. Aspect-Based Sentiment (ABSA)
-**Subfolder:** `absa/` · `sbatch run.sh`: applies zero-shot BART per topic across all 134,068 guitar reviews to produce a positive/negative/not-mentioned distribution for each of the 16 topics. Checkpoints per topic into `ckpt/` (resubmit safely; completed topics are skipped). `summarize.py` reads the checkpoints and prints the final summary — run locally once all checkpoints exist.
+**Subfolder:** 
+* `absa/` · `sbatch run.sh`: applies zero-shot BART per topic across all 134,068 guitar reviews to produce a positive/negative/not-mentioned distribution for each of the 16 topics. Checkpoints per topic into `ckpt/` (resubmit safely; completed topics are skipped). 
+* `summarize.py` reads the checkpoints and prints the final summary - run locally once all checkpoints exist.
 
 Outputs: `results.txt`, `guitars_absa.parquet`, `ckpt/t<id>_<label>.pkl` (one per topic)
 
@@ -208,30 +236,30 @@ step3_llm_judge.ipynb      # LLM-as-judge: pointwise + pairwise scoring → resu
 
 ---
 
-## Extensions — Drums & Keyboards
-
+## Extensions: Drums & Keyboards
+ 
 **Folders:** `extension_drums/` and `extension_keyboards/`
-
+ 
 Both extensions have identical structure. Run the numbered scripts in order (substitute `drums` or `keyboards` as appropriate):
-
+ 
 ```bash
-sbatch 1_run_preprocess_<category>.sh   # tokenises reviews, builds LDA corpus
-                                        # → <category>_tokens.pkl, _dict.pkl, _corpus.pkl
-
-sbatch 2_run_tune_<category>.sh         # grid search over LDA hyperparameters
-                                        # → results/tune_results_<category>.txt
-
-sbatch 3_run_assign_<category>.sh       # trains final LDA model, assigns topics to reviews
-                                        # → <category>_lda_final/, results/lda_results_<category>.txt
-
-sbatch 4_run_sentiment_<category>.sh    # fine-tunes RoBERTa, runs inference
-                                        # → results/<category>_bert_predictions.csv, _bert_topic_sentiment.csv
+python 1_preprocess_<category>.py         # tokenises reviews, builds LDA corpus
+                                          # → <category>_tokens.pkl, _dict.pkl, _corpus.pkl
+ 
+python 2_tune_params_<category>.py        # grid search over LDA hyperparameters
+                                          # → results/tune_results_<category>.txt
+ 
+python 3_assign_topics_<category>.py      # trains final LDA model, assigns topics to reviews
+                                          # → <category>_lda_final/, results/lda_results_<category>.txt
+ 
+python 4_sentiment_<category>.py          # fine-tunes RoBERTa, runs inference
+                                          # → results/<category>_bert_predictions.csv, _bert_topic_sentiment.csv
 ```
-
+ 
 Fine-tuned RoBERTa model saved to `roberta_<category>_model/` including intermediate training checkpoints.
-
+ 
 Then three notebooks for ad generation and evaluation, run locally in order (same structure as main pipeline step 5):
-
+ 
 ```
 5. adgen step1_data_prep.ipynb      # → ad_generation_input.json
 5. adgen step2_ad_generation.ipynb  # → ads_llm.json
