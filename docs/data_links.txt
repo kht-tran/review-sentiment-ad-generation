@@ -1,0 +1,29 @@
+DATA SOURCE
+===========
+
+This project uses the "Musical Instruments" subset of the Amazon Reviews 2023
+dataset (McAuley Lab). Raw data is not included in this repository — see the
+Data Note in README.md for why.
+
+Dataset homepage:
+  https://amazon-reviews-2023.github.io/
+
+HuggingFace dataset (official source):
+  https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023
+
+HOW TO DOWNLOAD
+================
+
+Go to either page above and look for the Musical Instruments category files:
+  - Reviews:  Musical_Instruments.jsonl(.gz)
+  - Metadata: meta_Musical_Instruments.jsonl
+
+On the HuggingFace page, these live under the "Files and versions" tab,
+under raw/review_categories/ and raw/meta_categories/ respectively.
+On the project homepage, category-level download links are listed directly
+on the page.
+
+PIPELINE EXPECTATION
+====================
+
+This repo's scripts expect the raw review file at the project root as:  Musical_Instruments.jsonl.gz
