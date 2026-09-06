@@ -21,7 +21,7 @@ Using 134,000+ Amazon musical instrument reviews, it identifies the product feat
 - Findings held up on both drums and keyboards datasets, suggesting the pipeline generalizes beyond the original guitar category
 
 ## Data Note
-Built on the Amazon Reviews 2023 dataset (Musical Instruments subset), a public research dataset. Raw review and metadata files are too large to include in this repository; download instructions are provided in the code. No proprietary or restricted data is used.
+Built on the Amazon Reviews 2023 dataset (Musical Instruments subset), a public research dataset. Raw review and metadata files are too large to include in this repository. No proprietary or restricted data is used.
 
 ## Tools Used
 - Python: pandas, numpy, gensim (LDA), BERTopic, scikit-learn, sentence-transformers, HuggingFace Transformers (BERT, RoBERTa, zero-shot NLI models)
